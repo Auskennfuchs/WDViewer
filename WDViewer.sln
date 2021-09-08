@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDViewer", "WDViewer.csproj", "{39D0A04C-2047-424C-8B05-A2717B507106}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39D0A04C-2047-424C-8B05-A2717B507106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39D0A04C-2047-424C-8B05-A2717B507106}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39D0A04C-2047-424C-8B05-A2717B507106}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39D0A04C-2047-424C-8B05-A2717B507106}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A10865B7-1C52-4C21-81B2-1853C25BADD6}
+	EndGlobalSection
+EndGlobal

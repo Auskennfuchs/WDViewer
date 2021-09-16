@@ -4,14 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WDViewer
+namespace WDViewer.Assets
 {
-    class Asset
+    public class RawAsset : Asset
     {
-        public string Path { get; set; }
-        public int FileSize { get; set; }
-        public uint FileOffset { get; set; }
-
         public byte[] Content { get; set; }
     }
 }

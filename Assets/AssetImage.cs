@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WDViewer
+namespace WDViewer.Assets
 {
-    class Entry
+    public class AssetImage : Asset
     {
-        public string Name { get; set; }
-        public byte[] Data { get; set; }
+        public Image Image { get; set; }
         public UInt16 Width { get; set; }
         public UInt16 Height { get; set; }
+        public AssetPalette Palette { get; set; }
     }
 }

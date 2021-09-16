@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WDViewer
+namespace WDViewer.Assets
 {
-    class AssetPalette
+    class AssetMix : Asset
     {
-        public string Path { get; set; }
-        public ColorRGB[] Palette { get; set; }
+        public List<Asset> Content { get; set; }
     }
 }

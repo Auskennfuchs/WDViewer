@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WDViewer
 {
-    class Helper
+    class IOHelper
     {
         public static T ByteToType<T>(byte[] bytes)
         {

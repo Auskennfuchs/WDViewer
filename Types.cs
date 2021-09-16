@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WDViewer
 {
-    struct ColorRGB
+    public struct ColorRGB
     {
         public byte r;
         public byte g;

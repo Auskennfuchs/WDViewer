@@ -41,14 +41,15 @@ namespace WDViewer.Reader
         {
             processors = new List<IAssetProcessor>
             {
-                new PalProcessor(),
-                new ImageDatProcessor(),
                 new PcxProcessor(),
+                new PalProcessor(),
+                new LevelDatProcessor(),
+                new ImageDatProcessor(),
                 new MixAssetProcessor(),
             };
         }
 
-        public List<Asset> Read(string fileName)
+        public Dictionary<string, Asset> Read(string fileName)
         {
             var fileExtName = Path.GetFileName(fileName).ToLower();
             if (fileExtName == "smp0.wd" || fileExtName == "smp1.wd")
@@ -59,7 +60,7 @@ namespace WDViewer.Reader
             return ReadStandardWDFile(fileName);
         }
 
-        private List<Asset> ReadStandardWDFile(string fileName)
+        private Dictionary<string, Asset> ReadStandardWDFile(string fileName)
         {
             var rawFileName = Path.GetFileNameWithoutExtension(fileName);
             using var file = File.OpenRead(fileName);
@@ -134,20 +135,21 @@ namespace WDViewer.Reader
                 .Where(e => e.Value != null) //remove empty values if removed inside processor
                 .ToDictionary(e => e.Key, e => e.Value);
             }
-            return result.Values.ToList();
+            return result;
         }
 
-        private List<Asset> ReadPcmFile(string fileName)
+        private Dictionary<string, Asset> ReadPcmFile(string fileName)
         {
             var rawFileName = Path.GetFileNameWithoutExtension(fileName);
             using var file = File.OpenRead(fileName);
             using var fileStream = new BinaryReader(file);
             var bytes = fileStream.ReadBytes((int)file.Length);
-            return new List<Asset>(){
-                new AssetAudio()
+            return new Dictionary<string, Asset>(){
+                { fileName,new AssetAudio()
                 {
                     Path = rawFileName,
                     PcmData = bytes,
+                }
                 }
             };
         }

@@ -10,14 +10,10 @@ namespace WDViewer.Controls
     class AssetImageControl : PictureBox
     {
 
-        public AssetImageControl()
-        {
-            this.SizeMode = PictureBoxSizeMode.Zoom;
-        }
-
         protected override void OnPaint(PaintEventArgs pe)
         {
-            pe.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            pe.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            pe.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
             base.OnPaint(pe);
         }
     }

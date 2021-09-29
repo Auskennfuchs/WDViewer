@@ -1,5 +1,4 @@
-﻿using Be.Windows.Forms;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data;
@@ -23,10 +22,6 @@ namespace WDViewer
     {
         private WdFileReader fileReader;
 
-        private MixAssetProcessor mixReader;
-
-        private List<Asset> assets;
-
         private class AssetListItem
         {
             public string Name { get; set; }
@@ -39,11 +34,12 @@ namespace WDViewer
             public Asset Entry { get; set; }
         }
 
+        private Dictionary<string, Asset> assets;
+
         public MainForm()
         {
             InitializeComponent();
             fileReader = new WdFileReader();
-            mixReader = new MixAssetProcessor();
             contentFileListView.DisplayMember = "Name";
         }
 
@@ -57,18 +53,15 @@ namespace WDViewer
                 {
                     MatchCasing = MatchCasing.CaseInsensitive,
                 });
-                var assets = wdFiles.Select(fileName =>
-                {
-                    return fileReader.Read(fileName);
-                })
-                    .Aggregate(new List<Asset>(), (res, a) =>
-                    {
-                        res.AddRange(a);
-                        return res;
-                    });
+                assets = wdFiles.Select(fileName => fileReader.Read(fileName))
+                    .Aggregate(new Dictionary<string, Asset>(), (res, a) =>
+                     {
+                         AddRange(res, a);
+                         return res;
+                     });
                 contentFileListView.Items.Clear();
                 contentFileListView.Items.AddRange(
-                    assets.Select(asset => new AssetListItem()
+                    assets.Values.Select(asset => new AssetListItem()
                     {
                         Name = asset.Path,
                         Asset = asset,
@@ -76,29 +69,16 @@ namespace WDViewer
                     .ToArray()
                 );
             }
-            /*            var result = openFileDialog.ShowDialog();
-                        if (result == DialogResult.OK)
-                        {
-                            ResetView();
-                            try
-                            {
-                                var fileName = openFileDialog.FileName;
-                                assets = fileReader.Read(fileName);
-                                contentFileListView.Items.Clear();
-                                contentFileListView.Items.AddRange(
-                                    assets.Select(asset => new AssetListItem()
-                                    {
-                                        Name = asset.Path,
-                                        Asset = asset,
-                                    })
-                                    .ToArray()
-                                );
-                            }
-                            catch (IOException ex)
-                            {
-                                MessageBox.Show(ex.Message, "Error reading file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        }*/
+        }
+
+        private void AddRange<T>(ICollection<T> target, IEnumerable<T> source)
+        {
+            if (target == null)
+                throw new ArgumentNullException(nameof(target));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            foreach (var element in source)
+                target.Add(element);
         }
 
         private void OnFileListViewSelectedIndexChanged(object sender, EventArgs e)
@@ -145,6 +125,14 @@ namespace WDViewer
                     Dock = DockStyle.Fill,
                 };
                 previewPanel.Controls.Add(palContent);
+            }
+            else if (selectedItem.Asset is AssetLevel level)
+            {
+                var levelControl = new LevelControl(level, assets)
+                {
+                    Dock = DockStyle.Fill,
+                };
+                previewPanel.Controls.Add(levelControl);
             }
             else if (selectedItem.Asset is RawAsset raw)
             {

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WDViewer.Reader
 {
@@ -26,35 +21,35 @@ namespace WDViewer.Reader
             using var binReader = new BinaryReader(stream);
             with_alpha = translucentIndex != -1 || transparentIndex != -1;
 
-            byte magic = binReader.ReadByte();// Util.ReadByte(stream);
+            byte magic = binReader.ReadByte();
             if (magic != 0x0A)
                 throw new Exception("stream is not a valid .pcx file");
 
             /*version =*/
-            stream.ReadByte();//Util.ReadByte(stream);
+            stream.ReadByte();
             /*encoding =*/
-            stream.ReadByte(); //Util.ReadByte(stream);
-            ushort bpp = binReader.ReadByte(); //Util.ReadByte(stream);
-            xmin = binReader.ReadUInt16();// Util.ReadWord(stream);
-            ymin = binReader.ReadUInt16(); //Util.ReadWord(stream);
-            xmax = binReader.ReadUInt16(); //Util.ReadWord(stream);
-            ymax = binReader.ReadUInt16(); //Util.ReadWord(stream);
+            stream.ReadByte();
+            ushort bpp = binReader.ReadByte();
+            xmin = binReader.ReadUInt16();
+            ymin = binReader.ReadUInt16();
+            xmax = binReader.ReadUInt16();
+            ymax = binReader.ReadUInt16();
             /*ushort h_dpi =*/
-            binReader.ReadUInt16(); //Util.ReadWord(stream);
+            binReader.ReadUInt16();
             /*ushort v_dpi =*/
-            binReader.ReadUInt16(); //Util.ReadWord(stream);
+            binReader.ReadUInt16();
             stream.Seek(48, SeekOrigin.Current); /* skip the header palette */
-            stream.Seek(1, SeekOrigin.Current); //stream.Position++;    /* skip the reserved byte */
-            ushort numplanes = binReader.ReadByte();// Util.ReadByte(stream);
+            stream.Seek(1, SeekOrigin.Current); /* skip the reserved byte */
+            ushort numplanes = binReader.ReadByte();
             /*ushort stride =*/
-            binReader.ReadUInt16(); //Util.ReadWord(stream);
+            binReader.ReadUInt16();
             /*headerInterp =*/
-            binReader.ReadUInt16(); //Util.ReadWord(stream);
+            binReader.ReadUInt16();
             /*videoWidth =*/
-            binReader.ReadUInt16(); //Util.ReadWord(stream);
+            binReader.ReadUInt16();
             /*videoHeight =*/
-            binReader.ReadUInt16(); //Util.ReadWord(stream);
-            stream.Seek(54, SeekOrigin.Current); //stream.Position += 54;
+            binReader.ReadUInt16();
+            stream.Seek(54, SeekOrigin.Current);
 
             if (bpp != 8 || numplanes != 1)
                 throw new Exception("unsupported .pcx image type");
@@ -71,15 +66,13 @@ namespace WDViewer.Reader
 
             stream.Position = imageData;
 
-            Debug.WriteLine("imageData begins at {0}", imageData);
-
             /* now read the image data */
             data = new byte[width * height * 4];
 
             int idx = 0;
             while (idx < data.Length)
             {
-                byte b = binReader.ReadByte();// Util.ReadByte(stream);
+                byte b = binReader.ReadByte();
                 byte count;
                 byte value;
 
@@ -87,7 +80,7 @@ namespace WDViewer.Reader
                 {
                     /* it's a count byte */
                     count = (byte)(b & 0x3F);
-                    value = binReader.ReadByte();// Util.ReadByte(stream);
+                    value = binReader.ReadByte();
                 }
                 else
                 {

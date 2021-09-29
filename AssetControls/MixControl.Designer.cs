@@ -31,6 +31,8 @@ namespace WDViewer.Controls
         {
             this.contentListBox = new System.Windows.Forms.ListBox();
             this.previewPanel = new System.Windows.Forms.Panel();
+            this.bntExportAll = new System.Windows.Forms.Button();
+            this.exportAllDialog = new System.Windows.Forms.SaveFileDialog();
             this.SuspendLayout();
             // 
             // contentListBox
@@ -47,19 +49,38 @@ namespace WDViewer.Controls
             // 
             // previewPanel
             // 
-            this.previewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.previewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.previewPanel.Location = new System.Drawing.Point(327, 0);
             this.previewPanel.Name = "previewPanel";
-            this.previewPanel.Size = new System.Drawing.Size(639, 636);
+            this.previewPanel.Size = new System.Drawing.Size(639, 569);
             this.previewPanel.TabIndex = 1;
             // 
-            // MixForm
+            // bntExportAll
+            // 
+            this.bntExportAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bntExportAll.Location = new System.Drawing.Point(333, 588);
+            this.bntExportAll.Name = "bntExportAll";
+            this.bntExportAll.Size = new System.Drawing.Size(112, 34);
+            this.bntExportAll.TabIndex = 2;
+            this.bntExportAll.Text = "Export All";
+            this.bntExportAll.UseVisualStyleBackColor = true;
+            this.bntExportAll.Click += new System.EventHandler(this.bntExportAll_Click);
+            // 
+            // exportAllDialog
+            // 
+            this.exportAllDialog.DefaultExt = "zip";
+            this.exportAllDialog.Filter = "Zip Files (*.zip)|*.zip| All Files|*.*";
+            // 
+            // MixControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.bntExportAll);
             this.Controls.Add(this.previewPanel);
             this.Controls.Add(this.contentListBox);
-            this.Name = "MixForm";
+            this.Name = "MixControl";
             this.Size = new System.Drawing.Size(966, 636);
             this.ResumeLayout(false);
 
@@ -69,5 +90,7 @@ namespace WDViewer.Controls
 
         private System.Windows.Forms.ListBox contentListBox;
         private System.Windows.Forms.Panel previewPanel;
+        private System.Windows.Forms.Button bntExportAll;
+        private System.Windows.Forms.SaveFileDialog exportAllDialog;
     }
 }

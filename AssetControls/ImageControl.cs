@@ -59,5 +59,55 @@ namespace WDViewer.Controls
             }
             return null;
         }
+
+        private Color GetPixel(int mX, int mY)
+        {
+            var imageWidth = assetImage.Image.Width;
+            var imageHeight = assetImage.Image.Height;
+            var boxWidth = assetImageControl.ClientSize.Width;
+            var boxHeight = assetImageControl.ClientSize.Height;
+            int x;
+            int y;
+
+            float pic_aspect = boxWidth / (float)boxHeight;
+            float img_aspect = imageWidth / (float)imageHeight;
+            if (pic_aspect > img_aspect)
+            {
+                // The PictureBox is wider/shorter than the image.
+                y = (int)(imageHeight * mY / (float)boxHeight);
+
+                // The image fills the height of the PictureBox.
+                // Get its width.
+                float scaled_width = imageWidth * boxHeight / imageHeight;
+                float dx = (boxWidth - scaled_width) / 2;
+                x = (int)((mX - dx) * imageHeight / (float)boxHeight);
+            }
+            else
+            {
+                // The PictureBox is taller/thinner than the image.
+                x = (int)(imageWidth * mX / (float)boxWidth);
+
+                // The image fills the height of the PictureBox.
+                // Get its height.
+                float scaled_height = imageHeight * boxWidth / imageWidth;
+                float dy = (boxHeight - scaled_height) / 2;
+                y = (int)((mY - dy) * imageWidth / boxWidth);
+            }
+            if (x < 0 || x >= imageWidth ||
+                y < 0 || y >= imageHeight)
+            {
+                return Color.Transparent;
+            }
+
+            using var bitmap = new Bitmap(assetImage.Image);
+            return bitmap.GetPixel(x, y);
+        }
+
+        private void assetImageControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            var pixel = GetPixel(e.X, e.Y);
+            lblCurColor.Text = $"({pixel.R},{pixel.G},{pixel.B},{pixel.A})";
+            curColPanel.BackColor = pixel;
+        }
     }
 }

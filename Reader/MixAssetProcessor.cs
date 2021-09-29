@@ -101,7 +101,6 @@ namespace WDViewer.Reader
                     };
                 }).ToList();
 
-            ((AssetMix)result).Content.AddRange(palettes);
             if (header.streamsCount > 0)
             {
                 if (!Match(binReader, "DATA "))
@@ -259,7 +258,7 @@ namespace WDViewer.Reader
                                        Path = $"Segmented Image {i}",
                                        Width = imageSize.width,
                                        Height = imageSize.height,
-                                       Image = CreatePaletteImage(imageSize.width, imageSize.height, imageBytes, imagePalette, true),
+                                       Image = CreatePaletteImage(imageSize.width, imageSize.height, imageBytes, imagePalette, false),
                                        Palette = imagePalette,
                                    };
                                }
@@ -273,6 +272,7 @@ namespace WDViewer.Reader
                                }
                        }
                    }));
+                ((AssetMix)result).Content.AddRange(palettes);
             }
             return Tuple.Create(true, result);
         }

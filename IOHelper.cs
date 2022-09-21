@@ -12,18 +12,22 @@ namespace WDViewer
     {
         public static T ByteToType<T>(byte[] bytes)
         {
-            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            T theStructure = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            var theStructure = (T) Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
             handle.Free();
 
             return theStructure;
         }
 
-        public static T ReadTypeFromReader<T>(BinaryReader reader)
+        public static unsafe T ByteToType<T>(byte* bytes)
+        {
+            return (T) Marshal.PtrToStructure(new IntPtr(bytes), typeof(T));
+        }
+
+        public static unsafe T ReadTypeFromReader<T>(BinaryReader reader)
         {
             var bytes = reader.ReadBytes(Marshal.SizeOf<T>());
             return ByteToType<T>(bytes);
-
         }
     }
 }

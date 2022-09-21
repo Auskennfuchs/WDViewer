@@ -9,9 +9,9 @@ using WDViewer.Assets;
 
 namespace WDViewer.Reader
 {
-    class WdFileReader
+    internal class WdFileReader
     {
-        struct WDFileRecord
+        private struct WdFileRecord
         {
             public UInt32 FileOffset;
             public Int32 FileSize;
@@ -21,7 +21,7 @@ namespace WDViewer.Reader
             public UInt32 NameOffset;
         };
 
-        struct FileAsset
+        private struct FileAsset
         {
             public string Path { get; set; }
             public int FileSize { get; set; }
@@ -30,7 +30,7 @@ namespace WDViewer.Reader
             public byte[] Content { get; set; }
         };
 
-        int recordSize = Marshal.SizeOf<WDFileRecord>();
+        private readonly int recordSize = Marshal.SizeOf<WdFileRecord>();
 
         private uint nameBlockSize;
         private byte[] namesBlock;
@@ -46,6 +46,7 @@ namespace WDViewer.Reader
                 new LevelDatProcessor(),
                 new ImageDatProcessor(),
                 new MixAssetProcessor(),
+                new FlcProcessor()
             };
         }
 
@@ -57,10 +58,10 @@ namespace WDViewer.Reader
                 return ReadPcmFile(fileName);
             }
 
-            return ReadStandardWDFile(fileName);
+            return ReadStandardWdFile(fileName);
         }
 
-        private Dictionary<string, Asset> ReadStandardWDFile(string fileName)
+        private Dictionary<string, Asset> ReadStandardWdFile(string fileName)
         {
             var rawFileName = Path.GetFileNameWithoutExtension(fileName);
             using var file = File.OpenRead(fileName);
@@ -82,29 +83,29 @@ namespace WDViewer.Reader
                 throw new IOException("name block is null");
             }
 
-            namesBlock = fileStream.ReadBytes((int)nameBlockSize);
+            namesBlock = fileStream.ReadBytes((int) nameBlockSize);
             if (namesBlock[nameBlockSize - 1] != '\0')
             {
                 throw new IOException("Name Block doesn't end with null terminator");
             }
 
             file.Seek(recordBlockOffset, SeekOrigin.Begin);
-            var fileEntry = Enumerable.Range(0, (int)recordCount)
-                         .Select((recordIndex) =>
-                         {
-                             var recordBytes = fileStream.ReadBytes(recordSize);
-                             var record = IOHelper.ByteToType<WDFileRecord>(recordBytes);
+            var fileEntry = Enumerable.Range(0, (int) recordCount)
+                .Select((recordIndex) =>
+                {
+                    var recordBytes = fileStream.ReadBytes(recordSize);
+                    var record = IOHelper.ByteToType<WdFileRecord>(recordBytes);
 
-                             var recordName = ExtractName(record.NameOffset);
+                    var recordName = ExtractName(record.NameOffset);
 
-                             return new FileAsset()
-                             {
-                                 Path = recordName,
-                                 FileSize = record.FileSize,
-                                 FileOffset = record.FileOffset,
-                             };
-                         })
-                         .ToList();
+                    return new FileAsset()
+                    {
+                        Path = recordName,
+                        FileSize = record.FileSize,
+                        FileOffset = record.FileOffset,
+                    };
+                })
+                .ToList();
 
             var result = new Dictionary<string, Asset>();
             foreach (var entry in fileEntry)
@@ -118,38 +119,36 @@ namespace WDViewer.Reader
                     Content = content,
                 });
             }
-            foreach (var processor in processors)
-            {
-                result = result.Select(entry =>
+
+            return processors.Aggregate(result, (current, processor) => current
+                .Select(entry =>
                 {
-                    if (entry.Value is RawAsset rawEntry)
+                    if (entry.Value is not RawAsset rawEntry)
                     {
-                        var (success, asset) = processor.Read(rawEntry.Content, entry.Key, result);
-                        if (success)
-                        {
-                            return new KeyValuePair<string, Asset>(entry.Key, asset);
-                        }
+                        return entry;
                     }
-                    return entry;
+
+                    var (success, asset) = processor.Read(rawEntry.Content, entry.Key, current);
+                    return success ? new KeyValuePair<string, Asset>(entry.Key, asset) : entry;
                 })
                 .Where(e => e.Value != null) //remove empty values if removed inside processor
-                .ToDictionary(e => e.Key, e => e.Value);
-            }
-            return result;
+                .ToDictionary(e => e.Key, e => e.Value));
         }
 
-        private Dictionary<string, Asset> ReadPcmFile(string fileName)
+        private static Dictionary<string, Asset> ReadPcmFile(string fileName)
         {
             var rawFileName = Path.GetFileNameWithoutExtension(fileName);
             using var file = File.OpenRead(fileName);
             using var fileStream = new BinaryReader(file);
-            var bytes = fileStream.ReadBytes((int)file.Length);
-            return new Dictionary<string, Asset>(){
-                { fileName,new AssetAudio()
+            var bytes = fileStream.ReadBytes((int) file.Length);
+            return new Dictionary<string, Asset>()
+            {
                 {
-                    Path = rawFileName,
-                    PcmData = bytes,
-                }
+                    fileName, new AssetAudio()
+                    {
+                        Path = rawFileName,
+                        PcmData = bytes,
+                    }
                 }
             };
         }
@@ -163,8 +162,10 @@ namespace WDViewer.Reader
                 {
                     break;
                 }
+
                 recordName += Convert.ToChar(namesBlock[nameIndex]);
             }
+
             return recordName;
         }
     }

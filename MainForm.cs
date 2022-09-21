@@ -46,32 +46,30 @@ namespace WDViewer
         private void OnMenuOpenFile(object sender, EventArgs e)
         {
             var result = folderBrowserDialog.ShowDialog();
-            if (result == DialogResult.OK)
+            if (result != DialogResult.OK) return;
+            ResetView();
+            var wdFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath, "*.wd", new EnumerationOptions()
             {
-                ResetView();
-                string[] wdFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath, "*.wd", new EnumerationOptions()
+                MatchCasing = MatchCasing.CaseInsensitive,
+            });
+            assets = wdFiles.Select(fileName => fileReader.Read(fileName))
+                .Aggregate(new Dictionary<string, Asset>(), (res, a) =>
                 {
-                    MatchCasing = MatchCasing.CaseInsensitive,
+                    AddRange(res, a);
+                    return res;
                 });
-                assets = wdFiles.Select(fileName => fileReader.Read(fileName))
-                    .Aggregate(new Dictionary<string, Asset>(), (res, a) =>
-                     {
-                         AddRange(res, a);
-                         return res;
-                     });
-                contentFileListView.Items.Clear();
-                contentFileListView.Items.AddRange(
-                    assets.Values.Select(asset => new AssetListItem()
-                    {
-                        Name = asset.Path,
-                        Asset = asset,
-                    })
+            contentFileListView.Items.Clear();
+            contentFileListView.Items.AddRange(
+                assets.Values.Select(asset => new AssetListItem()
+                {
+                    Name = asset.Path,
+                    Asset = asset,
+                })
                     .ToArray()
-                );
-            }
+            );
         }
 
-        private void AddRange<T>(ICollection<T> target, IEnumerable<T> source)
+        private static void AddRange<T>(ICollection<T> target, IEnumerable<T> source)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
@@ -89,6 +87,7 @@ namespace WDViewer
             {
                 return;
             }
+
             if (selectedItem.Asset is AssetMix mix)
             {
                 previewPanel.BorderStyle = BorderStyle.None;
@@ -143,6 +142,15 @@ namespace WDViewer
                     Dock = DockStyle.Fill,
                 };
                 previewPanel.Controls.Add(hexContent);
+            }
+            else if (selectedItem.Asset is AssetVideo video)
+            {
+                var videoContent = new AssetVideoControl()
+                {
+                    Video = video,
+                    Dock = DockStyle.Fill,
+                };
+                previewPanel.Controls.Add(videoContent);
             }
             else
             {
